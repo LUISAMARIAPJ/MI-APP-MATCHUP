@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MatchUp</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+        }
+        .app-shell {
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease-in-out;
+            padding: 1rem;
+        }
+        .desktop-view {
+            max-width: 1152px;
+            height: 850px;
+            margin: 2rem auto;
+            border-radius: 1rem;
+            box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+            overflow: hidden;
+            display: flex;
+            align-items: stretch;
+            background-color: #ffffff;
+        }
+        .desktop-view #desktop-sidebar { display: flex; }
+        .desktop-view #app-content-wrapper {
+            border: none;
+            border-radius: 0;
+            box-shadow: none;
+            height: 100%;
+            width: 100%;
+            max-width: 500px;
+        }
+        .phone-mockup {
+            width: 375px;
+            height: 812px;
+            border: 10px solid black;
+            border-radius: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            flex-shrink: 0;
+            background-color: #f0f2f5;
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .toggle-checkbox:checked { background-color: #4f46e5; }
+        .toggle-checkbox:checked + .toggle-label { transform: translateX(20px); }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <div class="absolute top-4 right-4 z-50 flex space-x-2 p-2 bg-white/50 backdrop-blur-sm rounded-lg shadow">
+        <button id="mobile-view-btn" onclick="setView('mobile')" class="p-2 rounded-md bg-indigo-600 text-white">
+            <i data-lucide="smartphone"></i>
+        </button>
+        <button id="desktop-view-btn" onclick="setView('desktop')" class="p-2 rounded-md bg-transparent text-gray-600">
+            <i data-lucide="monitor"></i>
+        </button>
+    </div>
+
+    <div id="app-shell" class="app-shell">
+        
+        <div id="desktop-sidebar" class="hidden w-5/12 lg:w-4/12 flex-col items-center justify-center bg-gradient-to-br from-blue-600 to-blue-200 p-12 text-white text-center">
+            <div class="flex items-center gap-3">
+                <i data-lucide="zap" class="w-12 h-12"></i>
+                <h1 class="text-5xl font-bold">MatchUp</h1>
+            </div>
+             <div class="w-52 h-52 my-8">
+                <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><circle cx="100" cy="100" r="10" fill="#FFFFFF" fill-opacity="0.8"/><circle cx="50" cy="50" r="4" fill="white"/><circle cx="150" cy="40" r="5" fill="white"/><circle cx="160" cy="110" r="3" fill="white"/><circle cx="40" cy="150" r="6" fill="white"/><circle cx="100" cy="20" r="3" fill="white"/><line x1="100" y1="100" x2="50" y2="50" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/><line x1="100" y1="100" x2="150" y2="40" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/><line x1="100" y1="100" x2="160" y2="110" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/><line x1="100" y1="100" x2="40" y2="150" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/><line x1="100" y1="100" x2="100" y2="20" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/></svg>
+            </div>
+            <h2 class="text-2xl font-semibold mb-2">Conecta tu talento único</h2>
+            <p class="text-white/80 mb-8">Tu próxima oportunidad profesional empieza aquí. Diseñado para el talento joven de Bogotá.</p>
+            <div class="w-full space-y-4">
+                <button onclick="showScreen('screen-signup-step1')" class="w-full py-3 bg-white text-blue-600 font-semibold rounded-lg shadow-lg">Crear Cuenta</button>
+                <button onclick="showScreen('screen-login')" class="w-full py-3 border border-white bg-transparent text-white font-semibold rounded-lg">Iniciar Sesión</button>
+            </div>
+        </div>
+
+        <div id="app-content-wrapper" class="phone-mockup">
+            <!-- Todas las pantallas de la app van aquí dentro. -->
+        </div>
+    </div>
+
+    <script>
+        // --- INICIO: LÓGICA DE LA APLICACIÓN ---
+
+        const screensData = {
+            'screen-welcome': {
+                classes: 'h-full w-full bg-gradient-to-br from-blue-600 to-blue-200 flex flex-col p-8 text-white',
+                content: `<div class="flex flex-col items-center justify-between h-full w-full"><div class="flex-shrink-0 mt-16"><div class="flex items-center gap-3"><i data-lucide="zap" class="w-10 h-10"></i><h1 class="text-4xl font-bold">MatchUp</h1></div></div><div class="flex-grow flex items-center justify-center"><div class="w-52 h-52"><svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><circle cx="100" cy="100" r="10" fill="#FFFFFF" fill-opacity="0.8"/><circle cx="50" cy="50" r="4" fill="white"/><circle cx="150" cy="40" r="5" fill="white"/><circle cx="160" cy="110" r="3" fill="white"/><circle cx="40" cy="150" r="6" fill="white"/><circle cx="100" cy="20" r="3" fill="white"/><line x1="100" y1="100" x2="50" y2="50" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/><line x1="100" y1="100" x2="150" y2="40" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/><line x1="100" y1="100" x2="160" y2="110" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/><line x1="100" y1="100" x2="40" y2="150" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/><line x1="100" y1="100" x2="100" y2="20" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/></svg></div></div><div class="w-full flex-shrink-0 space-y-4"><button onclick="showScreen('screen-signup-step1')" class="w-full py-3 bg-white text-blue-600 font-semibold rounded-lg shadow-lg">Crear Cuenta</button><button onclick="showScreen('screen-login')" class="w-full py-3 border border-white bg-transparent text-white font-semibold rounded-lg">Iniciar Sesión</button></div><button onclick="showScreen('screen-about')" class="text-sm font-medium mt-8 mb-4 underline hover:text-white/80 transition">Conecta tu talento único</button></div>`
+            },
+            'screen-about': {
+                classes: 'h-full w-full bg-gray-50 flex flex-col p-6',
+                content: `<div class="flex-shrink-0 text-right"><button onclick="showScreen('screen-welcome')" class="text-gray-500 hover:text-indigo-600"><i data-lucide="x" class="w-8 h-8"></i></button></div><div class="flex-grow flex flex-col justify-center items-center text-center space-y-6"><div class="bg-blue-100 p-4 rounded-full"><i data-lucide="sparkles" class="w-12 h-12 text-blue-600"></i></div><h2 class="text-2xl font-bold text-gray-800">Tu Próximo Match Profesional</h2><div class="text-gray-600 space-y-4 max-w-sm"><p>MatchUp es el impulso que necesitas. Somos el puente entre tu talento recién salido del horno y las empresas de Bogotá que buscan ideas frescas y ganas de crecer.</p><p class="font-semibold text-indigo-600">¿Eres estudiante o recién egresado? ¡Estás en el lugar correcto para encontrar tus prácticas, tu primer empleo o ese proyecto que te apasiona!</p><p>Pero ¡hey! Si ya tienes un camino recorrido, no te vayas. El talento no tiene etiquetas. Aquí también hay un espacio para ti. ¡Explora y encuentra tu próxima gran oportunidad!</p></div></div>`
+            },
+            'screen-login': {
+                classes: 'h-full w-full bg-gray-50 flex flex-col p-6',
+                content: `<button onclick="showScreen('screen-welcome')" class="self-start text-gray-600 hover:text-indigo-600"><i data-lucide="arrow-left" class="w-6 h-6"></i></button><div class="flex-grow flex flex-col justify-center"><h2 class="text-3xl font-bold text-gray-800 mb-8">¡Hola de nuevo!</h2><div class="space-y-4"><input type="email" placeholder="Correo Electrónico" class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"><input type="password" placeholder="Contraseña" class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"></div><button onclick="showScreen('screen-home')" class="w-full mt-8 bg-indigo-600 text-white font-semibold py-4 rounded-lg">Iniciar Sesión</button><a href="#" onclick="showScreen('screen-forgot-password')" class="text-center mt-4 text-sm text-indigo-600 hover:underline">¿Olvidaste tu contraseña?</a></div>`
+            },
+            'screen-signup-step1': {
+                classes: 'h-full w-full bg-gray-50 flex flex-col no-scrollbar',
+                content: `<div class="p-6 flex-shrink-0"><button onclick="showScreen('screen-welcome')" class="text-gray-600 mb-4"><i data-lucide="arrow-left"></i></button><h2 class="text-xl font-bold text-gray-800">Paso 1 de 4: Crea tu cuenta</h2><div class="w-full bg-gray-200 rounded-full h-2.5 mt-4"><div class="bg-indigo-600 h-2.5 rounded-full" style="width: 25%"></div></div></div><div class="flex-grow overflow-y-auto p-6 space-y-6 no-scrollbar"><div class="flex justify-center"><button class="w-28 h-28 bg-gray-200 rounded-full flex items-center justify-center"><i data-lucide="camera" class="w-10 h-10 text-gray-500"></i></button></div><div class="space-y-4"><input type="text" placeholder="Nombre" class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition"><input type="text" placeholder="Apellidos" class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition"><input type="email" placeholder="Correo Electrónico" class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition"><input type="text" placeholder="Fecha de Nacimiento" class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition" onfocus="(this.type='date')" onblur="(this.type='text')"><input type="password" placeholder="Crea una Contraseña" class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition"></div><section><h3 class="font-semibold text-gray-700 mb-3">Formación Principal</h3><div class="space-y-4"><select class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-gray-500"><option selected disabled>Nivel de Estudios</option><option>Bachiller</option><option>Técnico</option><option>Tecnólogo</option><option>Profesional</option><option>Especialización</option></select><input type="text" placeholder="Institución Educativa" class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"><input type="text" placeholder="Programa o Carrera" class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"></div></section><section><h3 class="font-semibold text-gray-700 mb-3">Habilidades Clave</h3><div class="border border-gray-300 rounded-lg focus-within:ring-2 focus-within:ring-indigo-500 p-3"><div id="skills-container-step1" class="flex flex-wrap gap-2 mb-2"></div><input id="skill-input-step1" type="text" placeholder="Añade una habilidad y presiona Enter" class="w-full bg-transparent focus:outline-none text-gray-800"></div></section></div><div class="p-6 mt-auto flex-shrink-0 bg-gray-50"><button onclick="showScreen('screen-signup-step2')" class="w-full bg-indigo-600 text-white font-semibold py-4 rounded-lg">Siguiente</button></div>`
+            },
+            'screen-signup-step2': {
+                classes: 'h-full w-full bg-gray-50 flex flex-col no-scrollbar',
+                content: `<div class="p-6 flex-shrink-0"><h2 class="text-xl font-bold text-gray-800">Paso 2 de 4: Tu Talento</h2><div class="w-full bg-gray-200 rounded-full h-2.5 mt-4"><div class="bg-indigo-600 h-2.5 rounded-full" style="width: 50%"></div></div></div><div class="flex-grow overflow-y-auto p-6 space-y-6 no-scrollbar"><section><h3 class="font-semibold text-gray-700 mb-2">Habilidades</h3><div class="border border-gray-300 rounded-lg p-3 flex flex-wrap gap-2 items-center"><div id="skills-container-step2" class="flex flex-wrap gap-2"><span class="bg-indigo-600 text-white px-3 py-1 rounded-full flex items-center gap-2 text-sm">Comunicación <button class="font-bold text-indigo-200 hover:text-white">&times;</button></span></div><input type="text" placeholder="Busca o añade una habilidad" class="flex-grow bg-transparent focus:outline-none text-gray-800"></div><div class="mt-3 flex flex-wrap gap-2"><button class="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm">+ Liderazgo</button><button class="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm">+ Trabajo en Equipo</button><button class="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm">+ Inglés B2</button></div></section><section><h3 class="font-semibold text-gray-700 mb-2">Formación</h3><div class="space-y-4"><input type="text" placeholder="Institución Educativa" class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"><input type="text" placeholder="Título Obtenido" class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"><input type="text" placeholder="Año de Finalización" class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"></div><button class="mt-4 flex items-center gap-2 text-indigo-600 font-semibold"><i data-lucide="plus-circle" class="w-5 h-5"></i>Añadir otra formación</button></section></div><div class="p-6 mt-auto flex-shrink-0 bg-gray-50"><div class="flex gap-4"><button onclick="showScreen('screen-signup-step1')" class="w-1/3 bg-gray-200 text-gray-700 font-semibold py-4 rounded-lg">Atrás</button><button onclick="showScreen('screen-signup-step3')" class="w-2/3 bg-indigo-600 text-white font-semibold py-4 rounded-lg">Siguiente</button></div></div>`
+            },
+            'screen-signup-step3': {
+                classes: 'h-full w-full bg-gray-50 flex flex-col no-scrollbar',
+                content: `<div class="p-6 flex-shrink-0"><h2 class="text-xl font-bold text-gray-800">Paso 3 de 4: Tu Presentación</h2><div class="w-full bg-gray-200 rounded-full h-2.5 mt-4"><div class="bg-indigo-600 h-2.5 rounded-full" style="width: 75%"></div></div></div><div class="flex-grow overflow-y-auto p-6 space-y-6 no-scrollbar"><section><h3 class="font-semibold text-gray-700 mb-2">Sobre mí</h3><textarea placeholder="Escribe un breve resumen sobre ti, tus intereses y lo que buscas profesionalmente..." class="w-full h-32 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"></textarea></section><section><h3 class="font-semibold text-gray-700 mb-2">Hoja de Vida (CV)</h3><button class="w-full p-4 border-2 border-dashed border-gray-300 rounded-lg hover:bg-gray-100 flex flex-col items-center justify-center space-y-1"><i data-lucide="upload-cloud" class="w-8 h-8 text-gray-400"></i><span class="text-sm font-semibold text-indigo-600">Sube tu archivo</span><span class="text-xs text-gray-500">PDF (máx. 5MB)</span></button></section><section><h3 class="font-semibold text-gray-700 mb-2">Enlaces Externos (Opcional)</h3><div class="relative"><i data-lucide="linkedin" class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i><input type="text" placeholder="URL de tu perfil de LinkedIn" class="w-full p-4 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"></div></section></div><div class="p-6 mt-auto flex-shrink-0 bg-gray-50"><div class="flex gap-4"><button onclick="showScreen('screen-signup-step2')" class="w-1/3 bg-gray-200 text-gray-700 font-semibold py-4 rounded-lg">Atrás</button><button onclick="showScreen('screen-signup-step4')" class="w-2/3 bg-indigo-600 text-white font-semibold py-4 rounded-lg">Siguiente</button></div></div>`
+            },
+            'screen-signup-step4': {
+                classes: 'h-full w-full bg-gray-50 flex flex-col no-scrollbar',
+                content: `<div class="p-6 flex-shrink-0"><h2 class="text-xl font-bold text-gray-800">Paso 4 de 4: ¡Tus preferencias!</h2><div class="w-full bg-gray-200 rounded-full h-2.5 mt-4"><div class="bg-indigo-600 h-2.5 rounded-full" style="width: 100%"></div></div></div><div class="flex-grow overflow-y-auto p-6 space-y-6 no-scrollbar"><section><h3 class="font-semibold text-gray-700 mb-2">Modalidad de Trabajo</h3><p class="text-sm text-gray-500 mb-3">Elige cómo te gustaría trabajar.</p><div class="flex flex-wrap gap-3"><button class="px-4 py-2 border rounded-full text-sm font-medium border-gray-300 text-gray-700 focus:bg-indigo-600 focus:text-white focus:border-indigo-600">Presencial</button><button class="px-4 py-2 border rounded-full text-sm font-medium border-gray-300 text-gray-700 focus:bg-indigo-600 focus:text-white focus:border-indigo-600">Remoto</button><button class="px-4 py-2 border rounded-full text-sm font-medium bg-indigo-600 text-white border-indigo-600">Híbrido</button></div></section><section><h3 class="font-semibold text-gray-700 mb-2">Tipo de Contrato</h3><p class="text-sm text-gray-500 mb-3">Selecciona los tipos de contrato que te interesan.</p><div class="flex flex-wrap gap-3"><button class="px-4 py-2 border rounded-full text-sm font-medium bg-indigo-600 text-white border-indigo-600">Prácticas</button><button class="px-4 py-2 border rounded-full text-sm font-medium border-gray-300 text-gray-700 focus:bg-indigo-600 focus:text-white focus:border-indigo-600">Jornada Completa</button><button class="px-4 py-2 border rounded-full text-sm font-medium border-gray-300 text-gray-700 focus:bg-indigo-600 focus:text-white focus:border-indigo-600">Media Jornada</button><button class="px-4 py-2 border rounded-full text-sm font-medium border-gray-300 text-gray-700 focus:bg-indigo-600 focus:text-white focus:border-indigo-600">Indefinido</button></div></section><section><h3 class="font-semibold text-gray-700 mb-2">Salario Deseado (Opcional)</h3><p class="text-sm text-gray-500 mb-3">Indica tu aspiración salarial mensual (COP).</p><div class="relative"><span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">$</span><input type="text" placeholder="2.000.000" class="w-full p-4 pl-8 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"></div></section></div><div class="p-6 mt-auto flex-shrink-0 bg-gray-50"><div class="flex gap-4"><button onclick="showScreen('screen-signup-step3')" class="w-1/3 bg-gray-200 text-gray-700 font-semibold py-4 rounded-lg">Atrás</button><button onclick="showScreen('screen-final-confirmation')" class="w-2/3 bg-indigo-600 text-white font-semibold py-4 rounded-lg">Finalizar</button></div></div>`
+            },
+            'screen-final-confirmation': {
+                classes: 'h-full w-full bg-gray-50 flex flex-col',
+                content: `<div class="p-6 flex-shrink-0"><button onclick="showScreen('screen-signup-step4')" class="text-gray-600 mb-4"><i data-lucide="arrow-left"></i></button></div><div class="flex-grow overflow-y-auto p-6 flex flex-col justify-center items-center text-center space-y-6 no-scrollbar"><div class="flex justify-center"><i data-lucide="check-circle-2" class="w-16 h-16 text-green-500"></i></div><h3 class="font-semibold text-gray-700 text-xl">Tu Perfil está casi listo</h3><p class="text-gray-600 text-center">Hemos guardado tu información. Una vez finalices, podrás editar tu perfil en cualquier momento desde tu panel principal.</p></div><div class="p-6 mt-auto flex-shrink-0 space-y-4"><div class="flex items-center gap-3"><input id="terms-checkbox-final" type="checkbox" class="h-5 w-5 rounded accent-indigo-600"><label for="terms-checkbox-final" class="text-sm text-gray-600">Acepto los <b class="text-indigo-600">Términos y Condiciones</b> y la <b class="text-indigo-600">Política de Privacidad</b> de MatchUp.</label></div><button id="finalize-button-final" onclick="showScreen('screen-signup-success')" class="w-full bg-indigo-600 text-white font-semibold py-4 rounded-lg disabled:bg-gray-300" disabled>Finalizar y Crear Perfil</button></div>`
+            },
+            'screen-signup-success': {
+                classes: 'h-full w-full bg-gray-50 flex flex-col p-6 text-center',
+                content: `<div class="flex-grow flex flex-col items-center justify-center space-y-6"><div class="w-28 h-28 bg-green-100 rounded-full flex items-center justify-center"><i data-lucide="party-popper" class="w-14 h-14 text-green-600"></i></div><div><h2 class="text-2xl font-bold text-gray-900">¡Felicidades, Luisa!</h2><p class="text-gray-600 mt-2">Tu perfil ha sido creado con éxito. Ya puedes empezar a explorar oportunidades y desarrollar tu talento.</p></div></div><div class="mt-auto flex-shrink-0"><button onclick="showScreen('screen-home')" class="w-full bg-indigo-600 text-white font-semibold py-4 rounded-lg">Empezar a Explorar</button></div>`
+            },
+            'screen-home': {
+                classes: 'h-full w-full bg-white flex flex-col',
+                content: `<div class="p-4 border-b bg-white flex-shrink-0"><div class="flex items-center bg-gray-100 rounded-lg p-3 gap-3"><i data-lucide="search" class="text-gray-500"></i><input type="text" placeholder="Buscar puesto, empresa..." class="flex-grow bg-transparent focus:outline-none text-gray-800"><button onclick="showScreen('screen-filters')" class="text-gray-500"><i data-lucide="sliders-horizontal"></i></button></div></div><main class="flex-grow overflow-y-auto p-4 space-y-4 no-scrollbar bg-gray-50"><div onclick="showScreen('screen-job-details')" class="bg-white p-4 rounded-lg shadow-md border border-gray-100 hover:shadow-lg cursor-pointer"><div class="flex items-start"><img src="https://placehold.co/48x48/E2E8F0/4A5568?text=I" alt="Innovatech Solutions Logo" class="w-12 h-12 rounded-lg"><div class="ml-4 flex-grow"><p class="font-bold text-gray-800">Desarrollador Frontend Jr.</p><p class="text-sm text-gray-500">Innovatech Solutions - Bogotá</p></div><i data-lucide="bookmark" class="text-gray-400"></i></div><div class="mt-4 flex flex-wrap gap-2"><span class="text-xs font-semibold px-2.5 py-1 bg-green-100 text-green-800 rounded-full">Prácticas</span><span class="text-xs font-semibold px-2.5 py-1 bg-blue-100 text-blue-800 rounded-full">Remoto</span></div></div><div onclick="showScreen('screen-job-details-monitor')" class="bg-white p-4 rounded-lg shadow-md border border-gray-100 hover:shadow-lg cursor-pointer"><div class="flex items-start"><img src="https://placehold.co/48x48/E2E8F0/4A5568?text=U" alt="Universidad Central Logo" class="w-12 h-12 rounded-lg"><div class="ml-4 flex-grow"><p class="font-bold text-gray-800">Monitor Académico</p><p class="text-sm text-gray-500">Universidad Central - Bogotá</p></div><i data-lucide="bookmark" class="text-gray-400"></i></div><div class="mt-4 flex flex-wrap gap-2"><span class="text-xs font-semibold px-2.5 py-1 bg-pink-100 text-pink-800 rounded-full">Sin Experiencia</span><span class="text-xs font-semibold px-2.5 py-1 bg-yellow-100 text-yellow-800 rounded-full">Media Jornada</span></div></div><div onclick="showScreen('screen-job-details-intercambio')" class="bg-white p-4 rounded-lg shadow-md border border-gray-100 hover:shadow-lg cursor-pointer"><div class="flex items-start"><img src="https://placehold.co/48x48/E2E8F0/4A5568?text=G" alt="Global Exchange Logo" class="w-12 h-12 rounded-lg"><div class="ml-4 flex-grow"><p class="font-bold text-gray-800">Intercambio Cultural - USA</p><p class="text-sm text-gray-500">Global Exchange Programs - Remoto</p></div><i data-lucide="bookmark" class="text-indigo-600 fill-current"></i></div><div class="mt-4 flex flex-wrap gap-2"><span class="text-xs font-semibold px-2.5 py-1 bg-cyan-100 text-cyan-800 rounded-full">Intercambio</span><span class="text-xs font-semibold px-2.5 py-1 bg-orange-100 text-orange-800 rounded-full">Beca</span></div></div><div onclick="showScreen('screen-job-details-practicas')" class="bg-white p-4 rounded-lg shadow-md border border-gray-100 hover:shadow-lg cursor-pointer"><div class="flex items-start"><img src="https://placehold.co/48x48/E2E8F0/4A5568?text=S" alt="Social Buzz Co. Logo" class="w-12 h-12 rounded-lg"><div class="ml-4 flex-grow"><p class="font-bold text-gray-800">Prácticas en Marketing Digital</p><p class="text-sm text-gray-500">Social Buzz Co. - Remoto</p></div><i data-lucide="bookmark" class="text-gray-400"></i></div><div class="mt-4 flex flex-wrap gap-2"><span class="text-xs font-semibold px-2.5 py-1 bg-green-100 text-green-800 rounded-full">Prácticas</span><span class="text-xs font-semibold px-2.5 py-1 bg-blue-100 text-blue-800 rounded-full">Remoto</span></div></div></main><footer class="bg-white p-2 border-t flex justify-around flex-shrink-0"><button onclick="showScreen('screen-home')" class="p-2 flex flex-col items-center text-indigo-600 w-1/4"><i data-lucide="search" class="w-6 h-6"></i><span class="text-xs">Buscar</span></button><button onclick="showScreen('screen-applications')" class="p-2 flex flex-col items-center text-gray-500 w-1/4"><i data-lucide="briefcase" class="w-6 h-6"></i><span class="text-xs">Postulaciones</span></button><button onclick="showScreen('screen-messages')" class="p-2 flex flex-col items-center text-gray-500 w-1/4"><i data-lucide="message-square" class="w-6 h-6"></i><span class="text-xs">Mensajes</span></button><button onclick="showScreen('screen-profile')" class="p-2 flex flex-col items-center text-gray-500 w-1/4"><i data-lucide="user" class="w-6 h-6"></i><span class="text-xs">Perfil</span></button></footer>`
+            },
+            'screen-job-details': {
+                classes: 'h-full w-full bg-gray-50 flex flex-col',
+                content: `<header class="p-4 bg-white shadow-sm flex-shrink-0 flex items-center gap-4"><button onclick="showScreen('screen-home')" class="text-gray-600"><i data-lucide="arrow-left"></i></button><h2 class="font-bold text-lg text-gray-800">Detalles de la Oferta</h2></header><main class="flex-grow overflow-y-auto no-scrollbar"><div class="p-6 text-center bg-white border-b"><img src="https://placehold.co/64x64/E2E8F0/4A5568?text=I" alt="Innovatech Solutions Logo" class="w-16 h-16 rounded-xl mx-auto"><h3 class="text-xl font-bold mt-4">Desarrollador Frontend Jr.</h3><p class="text-gray-600">Innovatech Solutions - Bogotá, Remoto</p></div><div class="p-6 space-y-6"><h4 class="font-bold text-gray-800">Descripción del Puesto</h4><p class="text-gray-600 text-sm">Buscamos un Desarrollador Frontend Junior apasionado por la creación de interfaces de usuario atractivas y funcionales. Esta es una oportunidad de prácticas para aprender y crecer en un entorno innovador.</p><h4 class="font-bold text-gray-800">Requisitos</h4><ul class="list-disc list-inside text-gray-600 text-sm space-y-1"><li>Conocimientos básicos de HTML, CSS, y JavaScript.</li><li>Interés en frameworks como React o Vue.</li><li>Estudiante de últimos semestres de Ing. de Sistemas o afines.</li><li>Proactividad y ganas de aprender.</li></ul><h4 class="font-bold text-gray-800">Beneficios</h4><ul class="list-disc list-inside text-gray-600 text-sm space-y-1"><li>Auxilio de sostenimiento.</li><li>Trabajo 100% remoto.</li><li>Oportunidad de contratación post-prácticas.</li></ul></div></main><footer class="p-4 bg-white border-t flex-shrink-0 flex items-center gap-4"><button class="p-3 border border-gray-300 rounded-lg text-gray-600"><i data-lucide="bookmark"></i></button><button onclick="showScreen('screen-apply-confirm')" class="flex-grow bg-indigo-600 text-white font-semibold py-3 rounded-lg">Postularme</button></footer>`
+            },
+            'screen-job-details-monitor': {
+                 classes: 'h-full w-full bg-gray-50 flex flex-col',
+                 content: `<header class="p-4 bg-white shadow-sm flex-shrink-0 flex items-center gap-4"><button onclick="showScreen('screen-home')" class="text-gray-600"><i data-lucide="arrow-left"></i></button><h2 class="font-bold text-lg text-gray-800">Detalles de la Oferta</h2></header><main class="flex-grow overflow-y-auto no-scrollbar"><div class="p-6 text-center bg-white border-b"><img src="https://placehold.co/64x64/E2E8F0/4A5568?text=U" alt="Universidad Central Logo" class="w-16 h-16 rounded-xl mx-auto"><h3 class="text-xl font-bold mt-4">Monitor Académico</h3><p class="text-gray-600">Universidad Central - Bogotá</p></div><div class="p-6 space-y-6"><h4 class="font-bold text-gray-800">Descripción del Puesto</h4><p class="text-gray-600 text-sm">Se busca estudiante para rol de Monitor Académico, encargado de apoyar a estudiantes de primer semestre en su proceso de adaptación a la vida universitaria y resolver dudas académicas.</p><h4 class="font-bold text-gray-800">Requisitos</h4><ul class="list-disc list-inside text-gray-600 text-sm space-y-1"><li>Ser estudiante activo de la universidad (cualquier carrera).</li><li>Tener un promedio ponderado superior a 4.0.</li><li>Excelentes habilidades de comunicación y paciencia.</li></ul><h4 class="font-bold text-gray-800">Salario</h4><p class="text-gray-600 text-sm">Salario Mínimo Legal Vigente (por horas).</p></div></main><footer class="p-4 bg-white border-t flex-shrink-0 flex items-center gap-4"><button class="p-3 border border-gray-300 rounded-lg text-gray-600"><i data-lucide="bookmark"></i></button><button onclick="showScreen('screen-apply-confirm')" class="flex-grow bg-indigo-600 text-white font-semibold py-3 rounded-lg">Postularme</button></footer>`
+            },
+            'screen-job-details-intercambio': {
+                classes: 'h-full w-full bg-gray-50 flex flex-col',
+                content: `<header class="p-4 bg-white shadow-sm flex-shrink-0 flex items-center gap-4"><button onclick="showScreen('screen-home')" class="text-gray-600"><i data-lucide="arrow-left"></i></button><h2 class="font-bold text-lg text-gray-800">Detalles del Programa</h2></header><main class="flex-grow overflow-y-auto no-scrollbar"><div class="p-6 text-center bg-white border-b"><img src="https://placehold.co/64x64/E2E8F0/4A5568?text=G" alt="Global Exchange Logo" class="w-16 h-16 rounded-xl mx-auto"><h3 class="text-xl font-bold mt-4">Intercambio Cultural - USA</h3><p class="text-gray-600">Global Exchange Programs</p></div><div class="p-6 space-y-6"><h4 class="font-bold text-gray-800">Descripción del Programa</h4><p class="text-gray-600 text-sm">Vive una inmersión cultural completa en Estados Unidos a través de nuestro programa Au Pair. Vivirás con una familia anfitriona, cuidarás de sus hijos y tendrás la oportunidad de estudiar y viajar.</p><h4 class="font-bold text-gray-800">Requisitos</h4><ul class="list-disc list-inside text-gray-600 text-sm space-y-1"><li>Nivel de inglés intermedio (B1/B2).</li><li>Licencia de conducir.</li><li>Pasión por trabajar con niños.</li><li>Ser mayor de 18 años.</li></ul><h4 class="font-bold text-gray-800">Beneficios</h4><ul class="list-disc list-inside text-gray-600 text-sm space-y-1"><li>Beca de estudios de $500 USD.</li><li>Alojamiento y alimentación cubiertos por la familia.</li><li>Estipendio semanal para gastos personales.</li><li>Tiquetes aéreos ida y regreso.</li></ul></div></main><footer class="p-4 bg-white border-t flex-shrink-0 flex items-center gap-4"><button class="p-3 border border-gray-300 rounded-lg text-gray-600"><i data-lucide="bookmark"></i></button><button onclick="showScreen('screen-apply-confirm')" class="flex-grow bg-indigo-600 text-white font-semibold py-3 rounded-lg">Aplicar Ahora</button></footer>`
+            },
+             'screen-job-details-practicas': {
+                classes: 'h-full w-full bg-gray-50 flex flex-col',
+                content: `<header class="p-4 bg-white shadow-sm flex-shrink-0 flex items-center gap-4"><button onclick="showScreen('screen-home')" class="text-gray-600"><i data-lucide="arrow-left"></i></button><h2 class="font-bold text-lg text-gray-800">Detalles de la Oferta</h2></header><main class="flex-grow overflow-y-auto no-scrollbar"><div class="p-6 text-center bg-white border-b"><img src="https://placehold.co/64x64/E2E8F0/4A5568?text=S" alt="Social Buzz Co. Logo" class="w-16 h-16 rounded-xl mx-auto"><h3 class="text-xl font-bold mt-4">Prácticas en Marketing Digital</h3><p class="text-gray-600">Social Buzz Co. - Remoto</p></div><div class="p-6 space-y-6"><h4 class="font-bold text-gray-800">Descripción del Puesto</h4><p class="text-gray-600 text-sm">Buscamos un estudiante creativo y proactivo para unirse a nuestro equipo de marketing como practicante. Serás responsable de apoyar la creación de contenido para redes sociales, analizar métricas y participar en campañas digitales.</p><h4 class="font-bold text-gray-800">Requisitos</h4><ul class="list-disc list-inside text-gray-600 text-sm space-y-1"><li>Estudiante de Comunicación Social, Marketing, Publicidad o afines.</li><li>Excelente redacción y ortografía.</li><li>Conocimiento básico de plataformas como Instagram, TikTok y Facebook.</li></ul><h4 class="font-bold text-gray-800">Beneficios</h4><p class="text-gray-600 text-sm">Contrato de aprendizaje con auxilio de sostenimiento.</p></div></main><footer class="p-4 bg-white border-t flex-shrink-0 flex items-center gap-4"><button class="p-3 border border-gray-300 rounded-lg text-gray-600"><i data-lucide="bookmark"></i></button><button onclick="showScreen('screen-apply-confirm')" class="flex-grow bg-indigo-600 text-white font-semibold py-3 rounded-lg">Postularme</button></footer>`
+            },
+            'screen-apply-confirm': {
+                classes: 'h-full w-full bg-gray-50 flex flex-col p-6 text-center justify-center items-center',
+                content: `<div class="w-28 h-28 bg-green-100 rounded-full flex items-center justify-center"><i data-lucide="send" class="w-14 h-14 text-green-600"></i></div><h3 class="text-2xl font-bold text-gray-900 mt-6">¡Postulación Enviada!</h3><p class="text-gray-600 mt-2">Tu perfil ha sido enviado. Te notificaremos sobre cualquier actualización.</p><button onclick="showScreen('screen-home')" class="w-full mt-8 bg-indigo-600 text-white font-semibold py-4 rounded-lg">Volver a Búsquedas</button><button onclick="showScreen('screen-applications')" class="w-full mt-4 bg-gray-200 text-gray-800 font-semibold py-4 rounded-lg">Ver mis Postulaciones</button>`
+            },
+            'screen-filters': {
+                classes: 'h-full w-full bg-gray-50 flex flex-col',
+                content: `<header class="p-4 bg-white shadow-sm flex-shrink-0 flex items-center justify-between"><h2 class="font-bold text-lg text-gray-800">Filtros</h2><button onclick="showScreen('screen-home')" class="text-gray-600"><i data-lucide="x"></i></button></header><main class="flex-grow overflow-y-auto p-6 space-y-6"><label class="font-semibold text-gray-700 mb-2 block">Modalidad</label><div class="flex flex-wrap gap-3"><button class="px-4 py-2 border rounded-full">Remoto</button><button class="px-4 py-2 border rounded-full bg-indigo-600 text-white border-indigo-600">Híbrido</button><button class="px-4 py-2 border rounded-full">Presencial</button></div><div><label class="font-semibold text-gray-700 mb-2 block">Tipo de Contrato</label><div class="flex flex-wrap gap-3"><button class="px-4 py-2 border rounded-full">Prácticas</button><button class="px-4 py-2 border rounded-full">Jornada Completa</button><button class="px-4 py-2 border rounded-full">Media Jornada</button><button class="px-4 py-2 border rounded-full">Indefinido</button></div></div><div><label class="font-semibold text-gray-700 mb-2 block">Nivel de Experiencia</label><div class="flex flex-wrap gap-3"><button class="px-4 py-2 border rounded-full bg-indigo-600 text-white border-indigo-600">Sin Experiencia</button><button class="px-4 py-2 border rounded-full">Junior</button><button class="px-4 py-2 border rounded-full">Semi-Senior</button><button class="px-4 py-2 border rounded-full">Senior</button></div></div></main><footer class="p-4 bg-white border-t flex-shrink-0 flex items-center gap-4"><button class="flex-grow bg-gray-200 text-gray-800 font-semibold py-3 rounded-lg">Limpiar</button><button onclick="showScreen('screen-home')" class="flex-grow bg-indigo-600 text-white font-semibold py-3 rounded-lg">Aplicar Filtros</button></footer>`
+            },
+            'screen-applications': {
+                classes: 'h-full w-full bg-white flex flex-col',
+                content: `<div class="p-4 border-b bg-white flex-shrink-0"><h2 class="text-xl font-bold text-center text-gray-800">Mis Postulaciones</h2></div><main class="flex-grow overflow-y-auto p-4 space-y-4 no-scrollbar bg-gray-50"><div class="bg-white p-4 rounded-lg shadow-md border border-gray-100"><p class="font-bold text-gray-800">Desarrollador Frontend Jr.</p><p class="text-sm text-gray-500">Innovatech Solutions</p><div class="mt-3 flex items-center gap-2 text-sm text-green-600 bg-green-100 p-2 rounded-lg"><i data-lucide="check-circle-2" class="w-5 h-5"></i><span>Perfil Visto por la Empresa</span></div></div><div class="bg-white p-4 rounded-lg shadow-md border border-gray-100"><p class="font-bold text-gray-800">Asistente Administrativo</p><p class="text-sm text-gray-500">Oficina Central</p><div class="mt-3 flex items-center gap-2 text-sm text-blue-600 bg-blue-100 p-2 rounded-lg"><i data-lucide="send" class="w-5 h-5"></i><span>Postulación Enviada</span></div></div><div class="bg-white p-4 rounded-lg shadow-md border border-gray-100"><p class="font-bold text-gray-800">Analista de Marketing</p><p class="text-sm text-gray-500">Creative Minds</p><div class="mt-3 flex items-center gap-2 text-sm text-red-600 bg-red-100 p-2 rounded-lg"><i data-lucide="x-circle" class="w-5 h-5"></i><span>Proceso Finalizado</span></div></div></main><footer class="bg-white p-2 border-t flex justify-around flex-shrink-0"><button onclick="showScreen('screen-home')" class="p-2 flex flex-col items-center text-gray-500 w-1/4"><i data-lucide="search" class="w-6 h-6"></i><span class="text-xs">Buscar</span></button><button onclick="showScreen('screen-applications')" class="p-2 flex flex-col items-center text-indigo-600 w-1/4"><i data-lucide="briefcase" class="w-6 h-6"></i><span class="text-xs">Postulaciones</span></button><button onclick="showScreen('screen-messages')" class="p-2 flex flex-col items-center text-gray-500 w-1/4"><i data-lucide="message-square" class="w-6 h-6"></i><span class="text-xs">Mensajes</span></button><button onclick="showScreen('screen-profile')" class="p-2 flex flex-col items-center text-gray-500 w-1/4"><i data-lucide="user" class="w-6 h-6"></i><span class="text-xs">Perfil</span></button></footer>`
+            },
+            'screen-messages': {
+                classes: 'h-full w-full bg-white flex flex-col',
+                content: `<div class="p-4 border-b bg-white flex-shrink-0"><h2 class="text-xl font-bold text-center text-gray-800">Mensajes</h2></div><main class="flex-grow overflow-y-auto no-scrollbar bg-gray-50"><div onclick="showScreen('screen-chat')" class="flex items-center p-4 gap-4 bg-white border-b hover:bg-gray-50 cursor-pointer"><img src="https://placehold.co/48x48/E9D5FF/805AD5?text=RR" alt="Recruiter" class="w-12 h-12 rounded-full"><div class="flex-grow"><p class="font-bold text-gray-800">Ricardo Rojas <span class="text-sm text-gray-500 font-normal ml-2">10:45 AM</span></p><p class="text-sm text-gray-600">¡Hola Luisa! Vimos tu perfil y...</p></div><span class="w-3 h-3 bg-indigo-500 rounded-full"></span></div><div class="flex items-center p-4 gap-4 bg-white border-b hover:bg-gray-50 cursor-pointer"><img src="https://placehold.co/48x48/C6F6D5/38A169?text=AM" alt="Recruiter" class="w-12 h-12 rounded-full"><div class="flex-grow"><p class="font-bold text-gray-800">Ana Méndez <span class="text-sm text-gray-500 font-normal ml-2">Ayer</span></p><p class="text-sm text-gray-500">Perfecto, gracias por confirmar.</p></div></div></main><footer class="bg-white p-2 border-t flex justify-around flex-shrink-0"><button onclick="showScreen('screen-home')" class="p-2 flex flex-col items-center text-gray-500 w-1/4"><i data-lucide="search" class="w-6 h-6"></i><span class="text-xs">Buscar</span></button><button onclick="showScreen('screen-applications')" class="p-2 flex flex-col items-center text-gray-500 w-1/4"><i data-lucide="briefcase" class="w-6 h-6"></i><span class="text-xs">Postulaciones</span></button><button onclick="showScreen('screen-messages')" class="p-2 flex flex-col items-center text-indigo-600 w-1/4"><i data-lucide="message-square" class="w-6 h-6"></i><span class="text-xs">Mensajes</span></button><button onclick="showScreen('screen-profile')" class="p-2 flex flex-col items-center text-gray-500 w-1/4"><i data-lucide="user" class="w-6 h-6"></i><span class="text-xs">Perfil</span></button></footer>`
+            },
+            'screen-chat': {
+                classes: 'h-full w-full bg-gray-100 flex flex-col',
+                content: `<header class="p-3 bg-white shadow-sm flex-shrink-0 flex items-center gap-3"><button onclick="showScreen('screen-messages')" class="text-gray-600"><i data-lucide="arrow-left"></i></button><img src="https://placehold.co/40x40/E9D5FF/805AD5?text=RR" alt="Recruiter" class="w-10 h-10 rounded-full"><div><p class="font-bold text-gray-800">Ricardo Rojas</p><p class="text-xs text-gray-500">Innovatech Solutions</p></div></header><main class="flex-grow overflow-y-auto p-4 space-y-4 no-scrollbar"><div class="flex gap-2"><div class="bg-white p-3 rounded-lg rounded-bl-none max-w-xs"><p class="text-sm text-gray-800">¡Hola Luisa! Vimos tu perfil y nos parece muy interesante para la vacante de Frontend. ¿Estarías disponible para una breve llamada mañana?</p></div></div><div class="flex gap-2 justify-end"><div class="bg-indigo-500 text-white p-3 rounded-lg rounded-br-none max-w-xs"><p class="text-sm">¡Hola Ricardo! Claro que sí, muchas gracias. Mañana por la mañana me viene perfecto.</p></div></div></main><footer class="p-2 bg-white border-t flex-shrink-0 flex items-center gap-2"><input type="text" placeholder="Escribe un mensaje..." class="flex-grow bg-gray-100 rounded-full p-3 h-12 focus:outline-none px-4"><button class="bg-indigo-600 text-white rounded-full w-10 h-10 flex items-center justify-center"><i data-lucide="send" class="w-5 h-5"></i></button></footer>`
+            },
+            'screen-profile': {
+                classes: 'h-full w-full bg-gray-50 flex flex-col',
+                content: `<header class="p-4 bg-white shadow-sm flex-shrink-0 flex items-center justify-between"><h2 class="text-xl font-bold text-center text-gray-800 flex-1">Mi Perfil</h2><button onclick="showScreen('screen-settings')" class="text-gray-600"><i data-lucide="settings"></i></button></header><main class="flex-grow overflow-y-auto no-scrollbar"><div class="p-6 text-center bg-white"><img src="https://placehold.co/80x80/D6BCFA/7141DC?text=LP" alt="Luisa Polo" class="w-20 h-20 rounded-full mx-auto ring-4 ring-white shadow-lg"><h3 class="text-xl font-bold mt-4">Luisa Polo</h3><p class="text-gray-600">Estudiante de Administración de Empresas (Virtual)</p><p class="text-sm text-gray-500">Cancillería de Colombia</p><button onclick="showScreen('screen-edit-profile')" class="mt-4 text-sm font-semibold text-indigo-600 border border-indigo-600 rounded-full px-4 py-1">Editar Perfil</button></div><div class="p-6 space-y-6"><div class="bg-white p-4 rounded-lg shadow-sm"><h4 class="font-bold text-gray-800 mb-2">Mis Habilidades</h4><div class="flex flex-wrap gap-2"><span class="text-xs font-semibold px-2.5 py-1 bg-gray-200 text-gray-800 rounded-full">Comunicación</span><span class="text-xs font-semibold px-2.5 py-1 bg-gray-200 text-gray-800 rounded-full">Liderazgo</span><span class="text-xs font-semibold px-2.5 py-1 bg-gray-200 text-gray-800 rounded-full">JavaScript</span></div></div><div class="bg-white p-4 rounded-lg shadow-sm"><h4 class="font-bold text-gray-800 mb-2">Mi Formación</h4><p class="font-semibold text-sm">Administración de Empresas</p><p class="text-xs text-gray-500">Fundación Universitaria del Área Andina - Cursando</p></div></div></main><footer class="bg-white p-2 border-t flex justify-around flex-shrink-0"><button onclick="showScreen('screen-home')" class="p-2 flex flex-col items-center text-gray-500 w-1/4"><i data-lucide="search" class="w-6 h-6"></i><span class="text-xs">Buscar</span></button><button onclick="showScreen('screen-applications')" class="p-2 flex flex-col items-center text-gray-500 w-1/4"><i data-lucide="briefcase" class="w-6 h-6"></i><span class="text-xs">Postulaciones</span></button><button onclick="showScreen('screen-messages')" class="p-2 flex flex-col items-center text-gray-500 w-1/4"><i data-lucide="message-square" class="w-6 h-6"></i><span class="text-xs">Mensajes</span></button><button onclick="showScreen('screen-profile')" class="p-2 flex flex-col items-center text-indigo-600 w-1/4"><i data-lucide="user" class="w-6 h-6"></i><span class="text-xs">Perfil</span></button></footer>`
+            },
+            'screen-edit-profile': {
+                classes: 'h-full w-full bg-gray-50 flex flex-col',
+                content: `<header class="p-4 bg-white shadow-sm flex-shrink-0 flex items-center gap-4"><button onclick="showScreen('screen-profile')" class="text-gray-600"><i data-lucide="arrow-left"></i></button><h2 class="font-bold text-lg text-gray-800">Editar Perfil</h2></header><main class="flex-grow overflow-y-auto no-scrollbar p-6 space-y-6"><div><label class="font-semibold text-gray-700 mb-2 block">Nombre Completo</label><input type="text" value="Luisa Polo" class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"></div><div><label class="font-semibold text-gray-700 mb-2 block">Habilidades</label><div class="border border-gray-300 rounded-lg p-3"><input type="text" placeholder="Busca o añade una habilidad" class="w-full bg-transparent focus:outline-none text-gray-800"></div></div><div><label class="font-semibold text-gray-700 mb-2 block">Formación</label><div class="space-y-4"><input type="text" value="Fundación Universitaria del Área Andina" class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"></div></div></main><footer class="p-4 bg-white border-t flex-shrink-0"><button onclick="showScreen('screen-profile')" class="w-full bg-indigo-600 text-white font-semibold py-3 rounded-lg">Guardar Cambios</button></footer>`
+            },
+            'screen-settings': {
+                classes: 'h-full w-full bg-gray-50 flex flex-col',
+                content: `<header class="p-4 bg-white shadow-sm flex-shrink-0 flex items-center gap-4"><button onclick="showScreen('screen-profile')" class="text-gray-600"><i data-lucide="arrow-left"></i></button><h2 class="font-bold text-lg text-gray-800">Ajustes</h2></header><main class="flex-grow overflow-y-auto no-scrollbar p-6 space-y-4"><button onclick="showScreen('screen-notifications')" class="w-full text-left flex justify-between items-center bg-white p-4 rounded-lg"><span>Notificaciones</span> <i data-lucide="chevron-right"></i></button><button onclick="showScreen('screen-privacy')" class="w-full text-left flex justify-between items-center bg-white p-4 rounded-lg"><span>Privacidad</span> <i data-lucide="chevron-right"></i></button><button onclick="showScreen('screen-support')" class="w-full text-left flex justify-between items-center bg-white p-4 rounded-lg"><span>Ayuda y Soporte</span> <i data-lucide="chevron-right"></i></button><button onclick="showScreen('screen-welcome')" class="w-full text-left flex justify-between items-center bg-white p-4 rounded-lg text-red-600"><span>Cerrar Sesión</span> <i data-lucide="log-out"></i></button></main>`
+            },
+            'screen-notifications': {
+                classes: 'h-full w-full bg-gray-50 flex flex-col',
+                content: `<header class="p-4 bg-white shadow-sm flex-shrink-0 flex items-center gap-4"><button onclick="showScreen('screen-settings')" class="text-gray-600"><i data-lucide="arrow-left"></i></button><h2 class="font-bold text-lg text-gray-800">Notificaciones</h2></header><main class="flex-grow overflow-y-auto no-scrollbar p-6 space-y-4"><div class="bg-white p-4 rounded-lg flex justify-between items-center"><div><h3 class="font-semibold text-gray-800">Nuevos Mensajes</h3><p class="text-sm text-gray-500">Recibe una alerta cuando un reclutador te contacte.</p></div><div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in"><input type="checkbox" name="toggle" id="toggle-messages" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer" checked/><label for="toggle-messages" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label></div></div><div class="bg-white p-4 rounded-lg flex justify-between items-center"><div><h3 class="font-semibold text-gray-800">Matches de Empleo</h3><p class="text-sm text-gray-500">Entérate de nuevas vacantes que coinciden con tu perfil.</p></div><div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in"><input type="checkbox" name="toggle" id="toggle-matches" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer" checked/><label for="toggle-matches" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label></div></div></main>`
+            },
+            'screen-support': {
+                classes: 'h-full w-full bg-gray-100 flex flex-col',
+                content: `<header class="p-3 bg-white shadow-sm flex-shrink-0 flex items-center gap-3"><button onclick="showScreen('screen-settings')" class="text-gray-600"><i data-lucide="arrow-left"></i></button><i data-lucide="bot" class="text-indigo-600 w-8 h-8"></i><div><p class="font-bold text-gray-800">Asistente Virtual MatchUp</p><p class="text-xs text-green-500">En línea</p></div></header><main class="flex-grow overflow-y-auto p-4 space-y-4 no-scrollbar"><div class="flex gap-2"><div class="bg-white p-3 rounded-lg rounded-bl-none max-w-xs"><p class="text-sm text-gray-800">¡Hola! Soy tu asistente virtual. ¿Cómo puedo ayudarte hoy? Puedes hacer clic en una de las opciones de abajo o escribir tu pregunta.</p></div></div><div class="flex flex-wrap gap-2 pt-2"><button class="px-3 py-1.5 border border-indigo-600 text-indigo-600 rounded-full text-sm">¿Cómo edito mi perfil?</button><button class="px-3 py-1.5 border border-indigo-600 text-indigo-600 rounded-full text-sm">Problemas con mi CV</button><button class="px-3 py-1.5 border border-indigo-600 text-indigo-600 rounded-full text-sm">Hablar con un humano</button></div></main><footer class="p-2 bg-white border-t flex-shrink-0 flex items-center gap-2"><input type="text" placeholder="Escribe tu pregunta..." class="flex-grow bg-gray-100 rounded-full p-3 h-12 focus:outline-none px-4"><button class="bg-indigo-600 text-white rounded-full w-10 h-10 flex items-center justify-center"><i data-lucide="send" class="w-5 h-5"></i></button></footer>`
+            },
+            'screen-privacy': {
+                classes: 'h-full w-full bg-gray-50 flex flex-col',
+                content: `<header class="p-4 bg-white shadow-sm flex-shrink-0 flex items-center gap-4"><button onclick="showScreen('screen-settings')" class="text-gray-600"><i data-lucide="arrow-left"></i></button><h2 class="font-bold text-lg text-gray-800">Privacidad</h2></header><main class="flex-grow overflow-y-auto no-scrollbar p-6 space-y-6"><div class="bg-white p-4 rounded-lg"><h3 class="font-semibold text-gray-800 mb-2">Gestión de Datos</h3><div class="flex justify-between items-center py-2 border-b"><div><h4 class="font-medium text-gray-700">Visibilidad del Perfil</h4><p class="text-xs text-gray-500">Permite que reclutadores vean tu perfil.</p></div><div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in"><input type="checkbox" name="toggle" id="toggle-visibility" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer" checked/><label for="toggle-visibility" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label></div></div><div class="flex justify-between items-center py-2"><div><h4 class="font-medium text-gray-700">Análisis de Datos</h4><p class="text-xs text-gray-500">Ayúdanos a mejorar tu experiencia.</p></div><div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in"><input type="checkbox" name="toggle" id="toggle-analytics" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer" checked/><label for="toggle-analytics" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label></div></div></div><div class="bg-white p-4 rounded-lg space-y-2"><h3 class="font-semibold text-gray-800 mb-2">Información Legal</h3><a href="#" class="block text-indigo-600">Política de Privacidad Completa</a><a href="#" class="block text-indigo-600">Términos y Condiciones de Uso</a></div><div class="bg-white p-4 rounded-lg space-y-2"><h3 class="font-semibold text-gray-800 mb-2">Tus Derechos</h3><a href="#" class="block text-indigo-600">Descargar mis datos</a><a href="#" class="block text-red-600">Eliminar mi cuenta</a></div></main>`
+            },
+            'screen-forgot-password': {
+                classes: 'h-full w-full bg-gray-50 flex flex-col p-6',
+                content: `<button onclick="showScreen('screen-login')" class="self-start text-gray-600 hover:text-indigo-600"><i data-lucide="arrow-left" class="w-6 h-6"></i></button><div class="flex-grow flex flex-col justify-center"><h2 class="text-3xl font-bold text-gray-800 mb-4">Recuperar Contraseña</h2><p class="text-gray-600 mb-8">Ingresa tu correo electrónico y te enviaremos un enlace para recuperarla.</p><div class="space-y-4"><input type="email" placeholder="Correo Electrónico" class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"></div><button onclick="showScreen('screen-login')" class="w-full mt-8 bg-indigo-600 text-white font-semibold py-4 rounded-lg">Enviar Enlace</button></div>`
+            },
+        };
+        
+        let contentHTML = '';
+        for (const screenId in screensData) {
+            const screen = screensData[screenId];
+            contentHTML += `<div id="${screenId}" class="${screen.classes}">${screen.content}</div>`;
+        }
+        document.getElementById('app-content-wrapper').innerHTML = contentHTML;
+    
+        let currentScreenId = 'screen-welcome';
+        let currentView = 'mobile';
+
+        window.showScreen = function(screenId) {
+            const previousScreen = currentScreenId;
+            currentScreenId = screenId;
+
+            if (currentView === 'desktop' && screenId === 'screen-welcome') {
+                 // No hacer nada, mantener la pantalla actual que no sea welcome
+                 currentScreenId = previousScreen;
+                 return;
+            }
+
+            const allScreens = document.querySelectorAll('#app-content-wrapper > div');
+            allScreens.forEach(s => s.classList.add('hidden'));
+            
+            const activeScreen = document.getElementById(screenId);
+            if (activeScreen) {
+                activeScreen.classList.remove('hidden');
+            }
+            lucide.createIcons();
+        }
+
+        window.setView = function(view) {
+            const appShell = document.getElementById('app-shell');
+            const appContentWrapper = document.getElementById('app-content-wrapper');
+            const mobileBtn = document.getElementById('mobile-view-btn');
+            const desktopBtn = document.getElementById('desktop-view-btn');
+            currentView = view;
+
+            if (view === 'desktop') {
+                appShell.classList.add('desktop-view');
+                appContentWrapper.classList.remove('phone-mockup');
+                desktopBtn.classList.add('bg-indigo-600', 'text-white');
+                desktopBtn.classList.remove('bg-transparent', 'text-gray-600');
+                mobileBtn.classList.remove('bg-indigo-600', 'text-white');
+                mobileBtn.classList.add('bg-transparent', 'text-gray-600');
+                if (currentScreenId === 'screen-welcome') {
+                    showScreen('screen-login');
+                } else {
+                    showScreen(currentScreenId);
+                }
+            } else {
+                appShell.classList.remove('desktop-view');
+                appContentWrapper.classList.add('phone-mockup');
+                mobileBtn.classList.add('bg-indigo-600', 'text-white');
+                mobileBtn.classList.remove('bg-transparent', 'text-gray-600');
+                desktopBtn.classList.remove('bg-indigo-600', 'text-white');
+                desktopBtn.classList.add('bg-transparent', 'text-gray-600');
+                showScreen(currentScreenId);
+            }
+        }
+        
+        showScreen('screen-welcome');
+        setView('mobile');
+
+        function addSkill(skillName, container) {
+            if (!container) return;
+            const skillTag = document.createElement('div');
+            skillTag.className = 'bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full flex items-center gap-1.5 text-sm font-medium';
+            const skillText = document.createElement('span');
+            skillText.textContent = skillName;
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'text-indigo-500 hover:text-indigo-700';
+            removeBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
+            removeBtn.onclick = () => skillTag.remove();
+            skillTag.appendChild(skillText);
+            skillTag.appendChild(removeBtn);
+            container.appendChild(skillTag);
+        }
+
+        document.body.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter' && event.target.matches('input[id^="skill-input"]')) {
+                const containerId = event.target.previousElementSibling.id;
+                if(event.target.value.trim() !== '') {
+                    addSkill(event.target.value.trim(), document.getElementById(containerId));
+                    event.target.value = '';
+                    event.preventDefault();
+                }
+            }
+        });
+
+        document.body.addEventListener('change', function(event){
+            if (event.target.id === 'terms-checkbox-final') {
+                const finalizeButtonFinal = document.getElementById('finalize-button-final');
+                if(finalizeButtonFinal) {
+                    finalizeButtonFinal.disabled = !event.target.checked;
+                }
+            }
+        });
+    </script>
+</body>
+</html>
